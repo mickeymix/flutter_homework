@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_homework/detail/add.dart';
 import 'package:flutter_homework/listcard.dart';
 import 'package:flutter_homework/listmodel.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() => runApp(MyApp());
 
@@ -40,20 +41,15 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<Listmodel> lists = List<Listmodel>();
 
-
   @override
   void initState() {
     super.initState();
-    lists.add(Listmodel(title: "ios"));
-    lists.add(Listmodel(title: "web"));
-    lists.add(Listmodel(title: "andoird"));
-    lists.add(Listmodel(title: "backend"));
   }
 
-  void _composeEmail()async{
+  void _composeEmail() async {
     setState(() async {
-     // lists.add(Listmodel(title: "aaaa"));
-      final result = await  Navigator.push(
+      // lists.add(Listmodel(title: "aaaa"));
+      final result = await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => Add(),
@@ -63,23 +59,35 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  _buildRow(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+        stream: Firestore.instance.collection("Todos").snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return CircularProgressIndicator();
+            default:
+              return new ListView(
+                children:
+                    snapshot.data.documents.map((DocumentSnapshot document) {
+
+                  return new Listcard(document);
+                }).toList(),
+              );
+          }
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     var child = Container(
-      child: ListView.builder(
-          itemCount: lists.length,
-          itemBuilder: (buildContext, position) {
-            return GestureDetector(
-              //onTap: () => _viewEmailDetail(position),
-              child: Listcard(lists[position]),
-            );
-          }),
+      child:_buildRow(context)
     );
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title)
-        ,
+        title: Text(widget.title),
       ),
       body: child,
       floatingActionButton: FloatingActionButton(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_homework/detail/FirestoreUtil.dart';
 
 class Add extends StatefulWidget {
   @override
@@ -7,6 +8,7 @@ class Add extends StatefulWidget {
 
 class _AddState extends State<Add> {
   String _text = '';
+  firestoreUtils mFireStoreUtil = firestoreUtils();
   final TextEditingController controller = TextEditingController();
 
   @override
@@ -17,6 +19,8 @@ class _AddState extends State<Add> {
   void _addtext() {
     setState(() {
       // lists.add(Listmodel(title: "aaaa"));
+      mFireStoreUtil.addData({'isFinished': false,'name':_text});
+
       Navigator.pop(context, _text);
     });
   }
@@ -38,7 +42,7 @@ class _AddState extends State<Add> {
                       width: 300,
                       child: TextField(
                         controller: controller,
-                        decoration: InputDecoration(labelText: "put"),
+                        decoration: InputDecoration(labelText: "please insert task."),
                         onChanged: (String newString) {
                           setState(() {
                             _text = controller.text;
@@ -50,7 +54,7 @@ class _AddState extends State<Add> {
                 child: SizedBox(
                     width: 300,
                     child: RaisedButton(
-                      child: const Text('ADD ADD ADD'),
+                      child: const Text('ADD TASK'),
                       onPressed: _addtext,
                     )),
               ),
